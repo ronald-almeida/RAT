@@ -51,7 +51,7 @@ async function checkPayment(manual=false){
 $('checkout-form').onsubmit=async event=>{
   event.preventDefault();if(inFlight)return;
   if(payment?.token){openPayment();return;}
-  if(!lockedBody){lockedBody={name:$('name').value,email:$('email').value,phone:$('phone').value,document:$('document').value,plan,orderKey,deliveryAccepted:$('delivery-accepted').checked};}
+  if(!lockedBody){lockedBody={name:$('name').value,email:$('email').value,phone:$('phone').value,document:$('document').value,plan,orderKey,termsAccepted:$('terms-accepted').checked};}
   inFlight=true;error('');$('generate').disabled=true;$('generate').textContent='Gerando seu Pix…';
   try{const data=await api('POST',lockedBody);persistPayment(data);$('existing-order').hidden=false;openPayment();}
   catch(e){error(e.message);}

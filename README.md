@@ -1,11 +1,12 @@
 # RAT — inscrição, Pix e central do aluno
 
-Recriação do formulário de inscrição RAT e do checkout, com as opções Safira e Gold por **R$ 247,00 à vista no Pix**. O acesso é orientado pelo WhatsApp **(75) 98839-3742**, após 48 horas da confirmação do pagamento. O prazo aparece antes da compra, na central e no PDF. Nenhum nome de gateway é exibido ao comprador.
+Recriação do formulário de inscrição RAT e do checkout, com as opções Safira e Gold por **R$ 247,00 à vista no Pix**. O acesso é orientado pelo WhatsApp **(75) 98839-3742**, após 48 horas da confirmação do pagamento. O prazo está nos Termos e Condições, na central e no PDF. Nenhum nome de gateway é exibido ao comprador.
 
 ## Rotas
 
 - `/`: apresentação, dados do comprador e escolha do programa.
-- `/checkout?plano=safira` ou `?plano=gold`: CPF, consentimento sobre o prazo e Pix em modal.
+- `/checkout?plano=safira` ou `?plano=gold`: CPF, aceite dos Termos e Condições e Pix em modal.
+- `/termos.html` e `/privacidade.html`: condições da compra e informações sobre o tratamento de dados.
 - `/obrigado`: central do aluno, exibida após verificação do pagamento no servidor.
 - `/guia-de-boas-vindas.pdf`: orientações com botões clicáveis de WhatsApp e reembolso.
 - `POST /api/checkout`: gera o Pix.

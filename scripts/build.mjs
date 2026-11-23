@@ -1,5 +1,5 @@
 import { access, readFile, writeFile } from 'node:fs/promises';
-for (const path of ['public/index.html','public/checkout.html','public/obrigado.html','public/guia-de-boas-vindas.pdf','public/assets/background.jpg','public/assets/inscricoes.jpg','public/assets/rat-logo.png']) await access(path);
+for (const path of ['public/index.html','public/checkout.html','public/obrigado.html','public/termos.html','public/privacidade.html','public/guia-de-boas-vindas.pdf','public/assets/background.jpg','public/assets/inscricoes.jpg','public/assets/rat-logo.png']) await access(path);
 const thanks = await readFile('public/obrigado.html', 'utf8');
 const preview = thanks
   .replace('<script src="/obrigado.js" defer></script>', '<link rel="stylesheet" href="/previa-obrigado.css">')

@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createPayment, paymentStatus, issueToken, verifyToken, validCPF } from '../lib/payment.js';
 const env={ATLAS_SECRET_KEY:'test-only-key',CHECKOUT_SESSION_SECRET:'test-session-secret-at-least-thirty-two-characters'};
-const input={name:'Pessoa Teste',email:'teste@example.com',document:'52998224725',phone:'75999999999',plan:'safira',orderKey:'00e57045-9e6a-4c10-a8ec-c3737d426204',deliveryAccepted:true};
+const input={name:'Pessoa Teste',email:'teste@example.com',document:'52998224725',phone:'75999999999',plan:'safira',orderKey:'00e57045-9e6a-4c10-a8ec-c3737d426204',termsAccepted:true};
 const charge={id:'charge_test_123',status:'pending',livemode:true,method:'pix',amount:247,metadata:{checkout:'rat-v1',plan:'safira'},pix:{code:'000201TESTE',expires_at:'2030-11-23T00:00:00Z'}};
 const mock=value=>async()=>({ok:true,json:async()=>value});
 test('validates CPF check digits',()=>{assert.equal(validCPF(input.document),true);assert.equal(validCPF('11111111111'),false);assert.equal(validCPF('52998224726'),false);});
@@ -14,7 +14,7 @@ test('pins price, uses documented Atlas schema and stable idempotency',async()=>
   const body=JSON.parse(calls[0].options.body);assert.equal(body.amount,247);assert.equal(body.items[0].unit_amount,247);assert.equal(body.customer.document,input.document);assert.equal(body.checkout_url,'https://rat.example/checkout');assert.equal(calls[0].options.headers['Idempotency-Key'],calls[1].options.headers['Idempotency-Key']);
   assert.match(result.qr,/^data:image\/png;base64,/);assert.equal(result.code,charge.pix.code);assert.equal(result.amount,247);assert.ok(!JSON.stringify(result).includes(input.document));
 });
-test('rejects invalid input before contacting Atlas',async()=>{let calls=0;const f=async()=>{calls++;};for(const patch of [{document:'123'},{deliveryAccepted:false},{plan:'other'},{email:'invalid'}])await assert.rejects(createPayment({...input,...patch},'https://rat.example',env,f));assert.equal(calls,0);});
+test('rejects invalid input before contacting Atlas',async()=>{let calls=0;const f=async()=>{calls++;};for(const patch of [{document:'123'},{termsAccepted:false},{plan:'other'},{email:'invalid'}])await assert.rejects(createPayment({...input,...patch},'https://rat.example',env,f));assert.equal(calls,0);});
 test('token rejects tampering and expiration',()=>{const token=issueToken('test','safira',env,1000);assert.equal(verifyToken(token,env,2000).id,'test');assert.throws(()=>verifyToken(token+'a',env,2000));assert.throws(()=>verifyToken(token,env,1000+91*86400000));});
 test('no access without server-confirmed paid status',async()=>{const token=issueToken(charge.id,'safira',env);for(const status of ['pending','expired','failed','refunded','chargeback']){const r=await paymentStatus(token,env,mock({...charge,status}));assert.equal(r.paid,false);assert.equal(r.guideUrl,undefined);}});
 test('paid state calculates 48 hours and includes support actions',async()=>{const token=issueToken(charge.id,'safira',env);const r=await paymentStatus(token,env,mock({...charge,status:'paid',paid_at:'2026-11-22T18:00:00Z'}));assert.equal(r.paid,true);assert.equal(r.releaseAt,'2026-11-24T18:00:00.000Z');assert.match(r.whatsappUrl,/5575988393742/);assert.equal(r.refundUrl,'https://reembolso-de-alunos.vercel.app/');});
